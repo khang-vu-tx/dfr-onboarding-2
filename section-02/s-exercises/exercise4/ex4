@@ -1,0 +1,2 @@
+Using nm which dumps all symbols (variables and functions): 0000000140009000 D secret_flag
+I assume there's only one flag but objdump gives various information on the binary based on the switch argument given. Similarly, gdb analyzes the binary; however, it is able to analyze the code during execution.

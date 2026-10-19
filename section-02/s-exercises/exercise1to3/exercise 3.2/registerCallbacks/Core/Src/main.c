@@ -45,7 +45,8 @@ TIM_HandleTypeDef htim1;
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+uint8_t message[16] = "Period Elapsed\n\r";
+FlagStatus periodElapsed = RESET;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -54,7 +55,8 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
-
+void User_UartCompleteCallback(UART_HandleTypeDef *huart);
+void User_TIMPeriodElapsedCallback(TIM_HandleTypeDef *htim);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -94,7 +96,9 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-
+ HAL_UART_RegisterCallback(&huart3, HAL_UART_TX_COMPLETE_CB_ID, User_UartCompleteCallback);
+ HAL_TIM_RegisterCallback(&htim2, HAL_TIM_PERIOD_ELAPSED_CB_ID, User_TIMPeriodElapsedCallback);
+ HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -102,7 +106,11 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+if(periodElapsed == SET)
+ {
+ HAL_UART_Transmit_IT(&huart3, message, sizeof(message));
+ periodElapsed = RESET;
+ }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -266,7 +274,14 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void User_UartCompleteCallback(UART_HandleTypeDef *huart)
+{
+ HAL_GPIO_TogglePin(USER_LED_GPIO_Port, USER_LED_Pin);
+}
+void User_TIMPeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+ periodElapsed = SET;
+}
 /* USER CODE END 4 */
 
 /**
